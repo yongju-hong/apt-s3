@@ -36,7 +36,7 @@
 #define SETFAIL(Owner, String) Owner->SetFailReason(String)
 #endif
 
-#ifdef __darwin__
+#if defined(__APPLE__) || defined(__darwin__)
 #define SETFAIL(Owner, String) Owner->SetFailExtraMsg(String)
 #endif
 
