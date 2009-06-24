@@ -984,7 +984,7 @@ int HttpMethod::DealWithHeaders(FetchResult &Res,ServerState *Srv)
    {
       char err[255];
       snprintf(err,sizeof(err)-1,"HttpError%i",Srv->Result);
-      SetFailReason(err);
+      // SetFailReason(err);
       _error->Error("%u %s",Srv->Result,Srv->Code);
       if (Srv->HaveContent == true)
 	 return 4;
