@@ -32,6 +32,14 @@
 #include <apti18n.h>
 									/*}}}*/
 
+#ifdef __linux__
+#define SETFAIL(Owner, String) Owner->SetFailReason(String)
+#endif
+
+#ifdef __darwin__
+#define SETFAIL(Owner, String) Owner->SetFailExtraMsg(String)
+#endif
+
 static string LastHost;
 static int LastPort = 0;
 static struct addrinfo *LastHostAddr = 0;
@@ -79,10 +87,10 @@ static bool DoConnect(struct addrinfo *Addr,string Host,
    {
       char Name2[NI_MAXHOST + NI_MAXSERV + 10];
       snprintf(Name2,sizeof(Name2),_("[IP: %s %s]"),Name,Service);
-      Owner->SetFailExtraMsg(string(Name2));
+      SETFAIL(Owner, string(Name2));
    }   
    else
-      Owner->SetFailExtraMsg("");
+      SETFAIL(Owner, "");
       
    // Get a socket
    if ((Fd = socket(Addr->ai_family,Addr->ai_socktype,
@@ -100,7 +108,7 @@ static bool DoConnect(struct addrinfo *Addr,string Host,
       nonblocking */
    if (WaitFd(Fd,true,TimeOut) == false) {
       bad_addr.insert(bad_addr.begin(), string(Name));
-      Owner->SetFailExtraMsg("\nFailReason: Timeout");
+      SETFAIL(Owner, "\nFailReason: Timeout");
       return _error->Error(_("Could not connect to %s:%s (%s), "
 			   "connection timed out"),Host.c_str(),Service,Name);
    }
@@ -115,7 +123,7 @@ static bool DoConnect(struct addrinfo *Addr,string Host,
    {
       errno = Err;
       if(errno == ECONNREFUSED)
-         Owner->SetFailExtraMsg("\nFailReason: ConnectionRefused");
+         SETFAIL(Owner, "\nFailReason: ConnectionRefused");
       return _error->Errno("connect",_("Could not connect to %s:%s (%s)."),Host.c_str(),
 			   Service,Name);
    }
@@ -180,13 +188,13 @@ bool Connect(string Host,int Port,const char *Service,int DefPort,int &Fd,
 		  continue;
 	       }
 	       bad_addr.insert(bad_addr.begin(), Host);
-	       Owner->SetFailExtraMsg("\nFailReason: ResolveFailure");
+	       SETFAIL(Owner, "\nFailReason: ResolveFailure");
 	       return _error->Error(_("Could not resolve '%s'"),Host.c_str());
 	    }
 	    
 	    if (Res == EAI_AGAIN)
 	    {
-	       Owner->SetFailExtraMsg("\nFailReason: TmpResolveFailure");
+	       SETFAIL(Owner, "\nFailReason: TmpResolveFailure");
 	       return _error->Error(_("Temporary failure resolving '%s'"),
 				    Host.c_str());
 	    }
