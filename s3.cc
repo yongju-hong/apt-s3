@@ -734,7 +734,7 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
 	Req += "Date: " + dateString + "\r\n";
 
 	string extractedPassword;
-	if(Uri.Password == NULL) {
+	if(Uri.Password.empty()) {
     extractedPassord = getenv("AWS_SECRET_ACCESS_KEY");
   } else {
   	if(Uri.Password.at(0) == '['){
@@ -750,7 +750,7 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
 
 	string signatureString(signature);
   string user;
-  if (Uri.User == NULL) {
+  if (Uri.User.empty()) {
     user = getenv("AWS_ACCESS_KEY_ID");
   } else {
     user = Uri.User;
