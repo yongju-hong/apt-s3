@@ -735,7 +735,7 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
 
 	string extractedPassword;
 	if(Uri.Password.empty()) {
-    extractedPassord = getenv("AWS_SECRET_ACCESS_KEY");
+    extractedPassword = getenv("AWS_SECRET_ACCESS_KEY");
   } else {
   	if(Uri.Password.at(0) == '['){
   		extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
