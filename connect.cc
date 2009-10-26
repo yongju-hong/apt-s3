@@ -32,13 +32,13 @@
 #include <apti18n.h>
 									/*}}}*/
 
-#ifdef __linux__
+// #ifdef __linux__
 #define SETFAIL(Owner, String) Owner->SetFailReason(String)
-#endif
-
-#if defined(__APPLE__) || defined(__darwin__)
-#define SETFAIL(Owner, String) Owner->SetFailExtraMsg(String)
-#endif
+// #endif
+// 
+// #if defined(__APPLE__) || defined(__darwin__)
+// #define SETFAIL(Owner, String) Owner->SetFailExtraMsg(String)
+// #endif
 
 static string LastHost;
 static int LastPort = 0;
