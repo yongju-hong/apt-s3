@@ -33,6 +33,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <utime.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -733,10 +734,14 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
 	Req += "Date: " + dateString + "\r\n";
 
 	string extractedPassword;
-	if(Uri.Password.at(0) == '['){
-		extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
-	}else{
-		extractedPassword = Uri.Password;
+	if(Uri.Password == NULL) {
+    extractedPassord = getenv("AWS_SECRET_ACCESS_KEY");
+  } else {
+  	if(Uri.Password.at(0) == '['){
+  		extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
+  	}else{
+  		extractedPassword = Uri.Password;
+  	}
 	}
 
 	char headertext[SLEN], signature[SLEN];
@@ -744,6 +749,12 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
 	doEncrypt(headertext, signature, extractedPassword.c_str());
 
 	string signatureString(signature);
+  string user;
+  if (Uri.User == NULL) {
+    user = getenv("AWS_ACCESS_KEY_ID");
+  } else {
+    user = Uri.User;
+  }
 
 	Req += "Authorization: AWS " + Uri.User + ":" + signatureString + "\r\n";
    	Req += "User-Agent: Ubuntu APT-HTTP/1.3 ("VERSION")\r\n\r\n";
