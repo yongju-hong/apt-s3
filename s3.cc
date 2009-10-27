@@ -402,7 +402,7 @@ int ServerState::RunHeaders()
 	 continue;
 
       if (Debug == true)
-	 clog << Data;
+	 cerr << Data;
       
       for (string::const_iterator I = Data.begin(); I < Data.end(); I++)
       {
@@ -435,6 +435,8 @@ bool ServerState::RunData()
 {
    State = Data;
    
+   if (Debug == true) cerr << "Response" << endl;
+
    // Chunked transfer encoding is fun..
    if (Encoding == Chunked)
    {
@@ -448,8 +450,11 @@ bool ServerState::RunData()
 	 {
 	    if (In.WriteTillEl(Data,true) == true)
 	       break;
+            if (Debug == true) cerr << Data;
 	 }
 	 while ((Last = Owner->Go(false,this)) == true);
+
+         if (Debug == true) cerr << Data;
 
 	 if (Last == false)
 	    return false;
@@ -736,6 +741,7 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
 	string extractedPassword;
 	if(Uri.Password.empty()) {
     extractedPassword = getenv("AWS_SECRET_ACCESS_KEY");
+    //cerr << "password " << extractedPassword << "\n";
   } else {
   	if(Uri.Password.at(0) == '['){
   		extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
@@ -756,11 +762,12 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
     user = Uri.User;
   }
 
-	Req += "Authorization: AWS " + Uri.User + ":" + signatureString + "\r\n";
+  //cerr << "user " << user << "\n";
+	Req += "Authorization: AWS " + user + ":" + signatureString + "\r\n";
    	Req += "User-Agent: Ubuntu APT-HTTP/1.3 ("VERSION")\r\n\r\n";
 
    if (Debug == true)
-      cerr << Req << endl;
+     cerr << "Request" << endl << Req << endl;
 
    Out.Read(Req);
 }
