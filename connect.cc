@@ -33,7 +33,7 @@
 									/*}}}*/
 
 // #ifdef __linux__
-#define SETFAIL(Owner, String) Owner->setFailExtraMsg(String)
+#define SETFAIL(Owner, String) Owner->SetFailExtraMsg(String)
 // #endif
 // 
 // #if defined(__APPLE__) || defined(__darwin__)
