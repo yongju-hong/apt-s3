@@ -9,3 +9,6 @@ s3: s3_main.o s3.o connect.o
 
 %.o: %.cc
 	 gcc  -I /usr/include -I./ -g -c $<
+
+install: s3
+	cp s3 /usr/lib/apt/methods/
