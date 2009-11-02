@@ -739,15 +739,17 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
 	Req += "Date: " + dateString + "\r\n";
 
 	string extractedPassword;
-	if(Uri.Password.empty()) {
-    extractedPassword = getenv("AWS_SECRET_ACCESS_KEY");
-    //cerr << "password " << extractedPassword << "\n";
-  } else {
-  	if(Uri.Password.at(0) == '['){
-  		extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
-  	}else{
-  		extractedPassword = Uri.Password;
-  	}
+        if (Uri.Password.empty() && NULL == getenv("AWS_SECRET_ACCESS_KEY")) {
+          cerr << "E: No AWS_SECRET_ACCESS_KEY set" << endl;
+          exit(1);
+	} else if(Uri.Password.empty()) {
+          extractedPassword = getenv("AWS_SECRET_ACCESS_KEY");
+        } else {
+  	  if(Uri.Password.at(0) == '['){
+  	     extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
+  	  }else{
+  	     extractedPassword = Uri.Password;
+  	  }
 	}
 
 	char headertext[SLEN], signature[SLEN];
@@ -756,7 +758,10 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
 
 	string signatureString(signature);
   string user;
-  if (Uri.User.empty()) {
+  if (Uri.User.empty() && NULL == getenv("AWS_ACCESS_KEY_ID")) {
+    cerr << "E: No AWS_ACCESS_KEY_ID set" << endl;
+    exit(1);
+  } else if (Uri.User.empty()) {
     user = getenv("AWS_ACCESS_KEY_ID");
   } else {
     user = Uri.User;
@@ -1116,7 +1121,6 @@ bool HttpMethod::Configuration(string Message)
    PipelineDepth = _config->FindI("Acquire::http::Pipeline-Depth",
 				  PipelineDepth);
    Debug = _config->FindB("Debug::Acquire::http",false);
-   
    return true;
 }
 									/*}}}*/
@@ -1142,6 +1146,7 @@ int HttpMethod::Loop()
       
       /* Run messages, we can accept 0 (no message) if we didn't
          do a WaitFd above.. Otherwise the FD is closed. */
+      
       int Result = Run(true);
       if (Result != -1 && (Result != 0 || Queue == 0))
 	 return 100;
