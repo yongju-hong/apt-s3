@@ -1,0 +1,5 @@
+apt-transport-s3 (1.0) unstable; urgency=low
+
+  * Initial release.
+
+ -- Jorge Gallegos <kad@blegh.net>  Fri, 29 Apr 2011 15:20:02 -0700
