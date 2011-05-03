@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sstream>
 
 #include<set>
 #include<string>
@@ -33,7 +34,7 @@
 									/*}}}*/
 
 // #ifdef __linux__
-#define SETFAIL(Owner, String) Owner->SetFailExtraMsg(String)
+#define SETFAIL(Owner, String) Owner->SetFailReason(String)
 // #endif
 // 
 // #if defined(__APPLE__) || defined(__darwin__)
@@ -85,12 +86,10 @@ static bool DoConnect(struct addrinfo *Addr,string Host,
       wrong this will get tacked onto the end of the error message */
    if (LastHostAddr->ai_next != 0)
    {
-      char Name2[NI_MAXHOST + NI_MAXSERV + 10];
-      snprintf(Name2,sizeof(Name2),_("[IP: %s %s]"),Name,Service);
-      SETFAIL(Owner, string(Name2));
+     std::stringstream ss;
+     ioprintf(ss, "[IP: %s %s]",Name,Service);
+     Owner->SetIP(ss.str());
    }   
-   else
-      SETFAIL(Owner, "");
       
    // Get a socket
    if ((Fd = socket(Addr->ai_family,Addr->ai_socktype,
@@ -108,7 +107,7 @@ static bool DoConnect(struct addrinfo *Addr,string Host,
       nonblocking */
    if (WaitFd(Fd,true,TimeOut) == false) {
       bad_addr.insert(bad_addr.begin(), string(Name));
-      SETFAIL(Owner, "\nFailReason: Timeout");
+      SETFAIL(Owner, "Timeout");
       return _error->Error(_("Could not connect to %s:%s (%s), "
 			   "connection timed out"),Host.c_str(),Service,Name);
    }
@@ -123,7 +122,7 @@ static bool DoConnect(struct addrinfo *Addr,string Host,
    {
       errno = Err;
       if(errno == ECONNREFUSED)
-         SETFAIL(Owner, "\nFailReason: ConnectionRefused");
+         SETFAIL(Owner, "ConnectionRefused");
       return _error->Errno("connect",_("Could not connect to %s:%s (%s)."),Host.c_str(),
 			   Service,Name);
    }
@@ -188,13 +187,13 @@ bool Connect(string Host,int Port,const char *Service,int DefPort,int &Fd,
 		  continue;
 	       }
 	       bad_addr.insert(bad_addr.begin(), Host);
-	       SETFAIL(Owner, "\nFailReason: ResolveFailure");
+	       SETFAIL(Owner, "ResolveFailure");
 	       return _error->Error(_("Could not resolve '%s'"),Host.c_str());
 	    }
 	    
 	    if (Res == EAI_AGAIN)
 	    {
-	       SETFAIL(Owner, "\nFailReason: TmpResolveFailure");
+	       SETFAIL(Owner, "TmpResolveFailure");
 	       return _error->Error(_("Temporary failure resolving '%s'"),
 				    Host.c_str());
 	    }

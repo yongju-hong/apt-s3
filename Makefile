@@ -1,14 +1,11 @@
+#!/usr/bin/make
+# vim: tabstop=4 softtabstop=4 noexpandtab fileencoding=utf-8
 
-default: s3
+DIRS:= src
+
+all:
+	for d in $(DIRS); do (cd $$d; $(MAKE) $(MFLAGS)); done;
 
 clean:
-	rm *.o s3
+	for d in $(DIRS); do (cd $$d; $(MAKE) clean); done;
 
-s3: s3_main.o s3.o connect.o
-	 g++ -lapt-pkg -lapt-inst -lssl -lcrypto -o s3 s3.o s3_main.o connect.o
-
-%.o: %.cc
-	 gcc  -I /usr/include -I./ -g -c $<
-
-install: s3
-	cp s3 /usr/lib/apt/methods/
