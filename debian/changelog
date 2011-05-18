@@ -1,3 +1,10 @@
+apt-transport-s3 (1.0ubuntu1) lucid; urgency=low
+
+  * Working around stupid amazon s3 behaviour with filenames
+    that include + signs
+
+ -- Jorge Gallegos <kad@blegh.net>  Wed, 18 May 2011 14:01:25 -0700
+
 apt-transport-s3 (1.0) unstable; urgency=low
 
   * Initial release.
