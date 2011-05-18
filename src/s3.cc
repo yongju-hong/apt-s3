@@ -667,6 +667,20 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
    if (Itm->Uri.length() >= sizeof(Buf))
        abort();
        
+   // Stupid workaround for https://forums.aws.amazon.com/thread.jspa?threadID=55746
+   // tl;dr s3 does not play nice with filenames that have a + sign in them
+   string normalized_path = QuoteString(Uri.Path, "~");
+   size_t f_plus = normalized_path.find("+");
+   size_t f_rep;
+   while (f_plus != string::npos){
+      f_rep = f_plus;
+      normalized_path.replace(f_rep, 1, "%2b");
+      f_plus = normalized_path.find("+", f_plus + 1);
+   }
+    //if (Uri.Path != normalized_path){
+    //    cerr << "\nTransforming " << Uri.Path << " to " << normalized_path << "\n";
+    //}
+
    /* Build the request. We include a keep-alive header only for non-proxy
       requests. This is to tweak old http/1.0 servers that do support keep-alive
       but not HTTP/1.1 automatic keep-alive. Doing this with a proxy server 
@@ -675,7 +689,7 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
       and we expect the proxy to do this */
    if (Proxy.empty() == true || Proxy.Host.empty())
       sprintf(Buf,"GET %s HTTP/1.1\r\nHost: %s\r\nConnection: keep-alive\r\n",
-	      QuoteString(Uri.Path,"~").c_str(),ProperHost.c_str());
+	      normalized_path.c_str(),ProperHost.c_str());
    else
    {
       /* Generate a cache control header if necessary. We place a max
@@ -753,7 +767,7 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
 	}
 
 	char headertext[SLEN], signature[SLEN];
-	sprintf(headertext,"GET\n\n\n%s\n%s", dateString.c_str(), Uri.Path.c_str());
+	sprintf(headertext,"GET\n\n\n%s\n%s", dateString.c_str(), normalized_path.c_str());
 	doEncrypt(headertext, signature, extractedPassword.c_str());
 
 	string signatureString(signature);
