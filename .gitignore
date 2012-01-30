@@ -1,0 +1,4 @@
+src/*.o
+src/s3
+debian/compat
+*~
