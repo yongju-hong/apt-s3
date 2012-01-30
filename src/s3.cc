@@ -740,37 +740,37 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
       Req += string("Proxy-Authorization: Basic ") + 
           Base64Encode(Proxy.User + ":" + Proxy.Password) + "\r\n";
 	
-	/* S3 Specific */
-	time_t rawtime;
-	struct tm * timeinfo;
-	char buffer [80];
+   /* S3 Specific */
+   time_t rawtime;
+   struct tm * timeinfo;
+   char buffer [80];
 
-	time( &rawtime);
-	timeinfo = gmtime( &rawtime);
+   time( &rawtime);
+   timeinfo = gmtime( &rawtime);
 
-	strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S +0000", timeinfo);
-	string dateString((const char*)buffer);
-	Req += "Date: " + dateString + "\r\n";
+   strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S +0000", timeinfo);
+   string dateString((const char*)buffer);
+   Req += "Date: " + dateString + "\r\n";
 
-	string extractedPassword;
-        if (Uri.Password.empty() && NULL == getenv("AWS_SECRET_ACCESS_KEY")) {
-          cerr << "E: No AWS_SECRET_ACCESS_KEY set" << endl;
-          exit(1);
-	} else if(Uri.Password.empty()) {
-          extractedPassword = getenv("AWS_SECRET_ACCESS_KEY");
-        } else {
-  	  if(Uri.Password.at(0) == '['){
-  	     extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
-  	  }else{
-  	     extractedPassword = Uri.Password;
-  	  }
-	}
+   string extractedPassword;
+   if (Uri.Password.empty() && NULL == getenv("AWS_SECRET_ACCESS_KEY")) {
+     cerr << "E: No AWS_SECRET_ACCESS_KEY set" << endl;
+     exit(1);
+   } else if(Uri.Password.empty()) {
+     extractedPassword = getenv("AWS_SECRET_ACCESS_KEY");
+   } else {
+     if(Uri.Password.at(0) == '['){
+       extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
+     }else{
+       extractedPassword = Uri.Password;
+     }
+   }
 
-	char headertext[SLEN], signature[SLEN];
-	sprintf(headertext,"GET\n\n\n%s\n%s", dateString.c_str(), normalized_path.c_str());
-	doEncrypt(headertext, signature, extractedPassword.c_str());
+   char headertext[SLEN], signature[SLEN];
+   sprintf(headertext,"GET\n\n\n%s\n%s", dateString.c_str(), normalized_path.c_str());
+   doEncrypt(headertext, signature, extractedPassword.c_str());
 
-	string signatureString(signature);
+   string signatureString(signature);
   string user;
   if (Uri.User.empty() && NULL == getenv("AWS_ACCESS_KEY_ID")) {
     cerr << "E: No AWS_ACCESS_KEY_ID set" << endl;
