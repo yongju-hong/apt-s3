@@ -1,3 +1,9 @@
+apt-transport-s3 (1.1ubuntu1) oneiric; urgency=low
+
+  * Make apt-transport-s3 work, when locale is non-english.
+
+ -- Jens Braeuer <braeuer.jens@googlemail.com>  Mon, 31 Jan 2012 21:01:25 +0100
+
 apt-transport-s3 (1.0ubuntu1) lucid; urgency=low
 
   * Working around stupid amazon s3 behaviour with filenames
