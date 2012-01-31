@@ -741,14 +741,28 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
           Base64Encode(Proxy.User + ":" + Proxy.Password) + "\r\n";
 	
    /* S3 Specific */
-   time_t rawtime;
-   struct tm * timeinfo;
-   char buffer [80];
+   time_t rawtime = 0;
+   struct tm * timeinfo = NULL;
+   char buffer [80] = { 0 };
+   char* wday = NULL;
 
    time( &rawtime);
    timeinfo = gmtime( &rawtime);
 
-   strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S +0000", timeinfo);
+   // strftime does not seem to honour set_locale(LC_ALL, "") or
+   // set_locale(LC_TIME, ""). So convert day of week by hand.
+   switch (timeinfo->tm_wday) {
+   case 0: wday = (char*)"Sun"; break;
+   case 1: wday = (char*)"Mon"; break;
+   case 2: wday = (char*)"Tue"; break;
+   case 3: wday = (char*)"Wed"; break;
+   case 4: wday = (char*)"Thu"; break;
+   case 5: wday = (char*)"Fri"; break;
+   case 6: wday = (char*)"Sat"; break;
+   }
+
+   strcat(buffer, wday);
+   strftime(buffer+3, 80, ", %d %b %Y %T %z", timeinfo);
    string dateString((const char*)buffer);
    Req += "Date: " + dateString + "\r\n";
 
