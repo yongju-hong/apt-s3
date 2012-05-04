@@ -2,10 +2,10 @@
 default: s3
 
 clean:
-	rm *.o s3
+	rm -f *.o s3
 
 s3: s3_main.o s3.o connect.o
-	 g++ -lapt-pkg -lapt-inst -lssl -lcrypto -o s3 s3.o s3_main.o connect.o
+	 g++ -o s3 s3.o s3_main.o connect.o -lapt-pkg -lapt-inst -lssl -lcrypto
 
 %.o: %.cc
 	 gcc  -I /usr/include -I./ -g -c $<

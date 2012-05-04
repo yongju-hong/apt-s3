@@ -756,37 +756,51 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
       Req += string("Proxy-Authorization: Basic ") + 
           Base64Encode(Proxy.User + ":" + Proxy.Password) + "\r\n";
 	
-	/* S3 Specific */
-	time_t rawtime;
-	struct tm * timeinfo;
-	char buffer [80];
+   /* S3 Specific */
+   time_t rawtime = 0;
+   struct tm * timeinfo = NULL;
+   char buffer [80] = { 0 };
+   char* wday = NULL;
 
-	time( &rawtime);
-	timeinfo = gmtime( &rawtime);
+   time( &rawtime);
+   timeinfo = gmtime( &rawtime);
 
-	strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S +0000", timeinfo);
-	string dateString((const char*)buffer);
-	Req += "Date: " + dateString + "\r\n";
+   // strftime does not seem to honour set_locale(LC_ALL, "") or
+   // set_locale(LC_TIME, ""). So convert day of week by hand.
+   switch (timeinfo->tm_wday) {
+   case 0: wday = (char*)"Sun"; break;
+   case 1: wday = (char*)"Mon"; break;
+   case 2: wday = (char*)"Tue"; break;
+   case 3: wday = (char*)"Wed"; break;
+   case 4: wday = (char*)"Thu"; break;
+   case 5: wday = (char*)"Fri"; break;
+   case 6: wday = (char*)"Sat"; break;
+   }
 
-	string extractedPassword;
-        if (Uri.Password.empty() && NULL == getenv("AWS_SECRET_ACCESS_KEY")) {
-          cerr << "E: No AWS_SECRET_ACCESS_KEY set" << endl;
-          exit(1);
-	} else if(Uri.Password.empty()) {
-          extractedPassword = getenv("AWS_SECRET_ACCESS_KEY");
-        } else {
-  	  if(Uri.Password.at(0) == '['){
-  	     extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
-  	  }else{
-  	     extractedPassword = Uri.Password;
-  	  }
-	}
+   strcat(buffer, wday);
+   strftime(buffer+3, 80, ", %d %b %Y %T %z", timeinfo);
+   string dateString((const char*)buffer);
+   Req += "Date: " + dateString + "\r\n";
 
-	char headertext[SLEN], signature[SLEN];
-	sprintf(headertext,"GET\n\n\n%s\n%s", dateString.c_str(), normalized_path.c_str());
-	doEncrypt(headertext, signature, extractedPassword.c_str());
+   string extractedPassword;
+   if (Uri.Password.empty() && NULL == getenv("AWS_SECRET_ACCESS_KEY")) {
+     cerr << "E: No AWS_SECRET_ACCESS_KEY set" << endl;
+     exit(1);
+   } else if(Uri.Password.empty()) {
+     extractedPassword = getenv("AWS_SECRET_ACCESS_KEY");
+   } else {
+     if(Uri.Password.at(0) == '['){
+       extractedPassword = Uri.Password.substr(1,Uri.Password.size()-2);
+     }else{
+       extractedPassword = Uri.Password;
+     }
+   }
 
-	string signatureString(signature);
+   char headertext[SLEN], signature[SLEN];
+   sprintf(headertext,"GET\n\n\n%s\n%s", dateString.c_str(), normalized_path.c_str());
+   doEncrypt(headertext, signature, extractedPassword.c_str());
+
+   string signatureString(signature);
   string user;
   if (Uri.User.empty() && NULL == getenv("AWS_ACCESS_KEY_ID")) {
     cerr << "E: No AWS_ACCESS_KEY_ID set" << endl;

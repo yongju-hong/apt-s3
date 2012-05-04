@@ -27,6 +27,8 @@
 #ifndef APT_HTTP_H
 #define APT_HTTP_H
 
+#include <apt-pkg/hashes.h>
+
 #define MAXLEN 360
 
 
