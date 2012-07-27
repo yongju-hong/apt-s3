@@ -28,7 +28,14 @@ otherwise leave off the credentials and it will draw them from the environment v
 
 Simply upload all of your .deb packages and Packages.gz file into the s3 bucket you chose with the file key mapping that matches the file system layout.
 
-## TODO
+## Uploading repository to s3
 
-* Package up binaries
-* Include uploader script to get repository into s3 bucket
+Before synchronization, you need a s3cmd tool installed and configured:
+
+    [sudo] apt-get install s3cmd
+    
+    s3cmd --configure
+
+To synchronize local repository with s3 execute:
+
+    s3cmd sync /srv/apt-repo-dir s3://bucket_name
