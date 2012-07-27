@@ -36,6 +36,7 @@ Before synchronization, you need a s3cmd tool installed and configured:
     
     s3cmd --configure
 
-To synchronize local repository to s3 execute:
+To synchronize local repository to s3 as read-only, execute:
 
-    s3cmd sync /srv/apt-repo-dir s3://bucket_name
+    s3cmd sync /srv/apt-repo-dir/dists s3://bucket_name
+    s3cmd sync /srv/apt-repo-dir/pool s3://bucket_name
