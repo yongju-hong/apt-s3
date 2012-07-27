@@ -12,3 +12,4 @@ clean:
 
 deb:
 	dpkg-buildpackage -us -uc
+
