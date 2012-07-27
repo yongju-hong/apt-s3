@@ -22,7 +22,7 @@ Once compiled, the resulting s3 binary must be placed in /usr/lib/apt/methods/ a
 
 Finally, this is how you add it to the /etc/apt/sources.list file if you want your credentials in the url:
 
-    deb s3://AWS_ACCESS_ID:[AWS_SECRET_KEY_IN_BRACKETS]@s3.amazonaws.com/BUCKETNAME prod main
+    deb s3://AWS_ACCESS_ID:[AWS_SECRET_KEY_IN_BRACKETS]@s3-ENDPOINT.amazonaws.com/BUCKETNAME prod main
 
 otherwise leave off the credentials and it will draw them from the environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_KEY_ID`.
 
@@ -40,3 +40,14 @@ To synchronize local repository to s3 as read-only, execute:
 
     s3cmd sync /srv/apt-repo-dir/dists s3://bucket_name
     s3cmd sync /srv/apt-repo-dir/pool s3://bucket_name
+    
+## Using GPG keys
+
+If you're signing you repository with key, export it to server:
+
+    gpg --send-keys XXXXXXXX
+
+then import it and install to apt:
+
+    gpg --recv-keys XXXXXXXX
+    gpg -a --export XXXXXXXX | [sudo] apt-key add -
