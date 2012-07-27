@@ -1,3 +1,9 @@
+apt-transport-s3 (1.1.1ubuntu2) precise; urgency=low
+
+  * Modified for company needs
+
+ -- Piotr Bulinski <piotr.bulinski@castlabs.com>  Fri, 27 Jun 2012 17:00:03 +0200
+
 apt-transport-s3 (1.1.1ubuntu1) precise; urgency=low
 
   * Version bump for stvp; no change from braeuer.jens,
