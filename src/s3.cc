@@ -761,6 +761,7 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
    struct tm * timeinfo = NULL;
    char buffer [80] = { 0 };
    char* wday = NULL;
+   char* mon = NULL;
 
    time( &rawtime);
    timeinfo = gmtime( &rawtime);
@@ -777,8 +778,25 @@ void HttpMethod::SendReq(FetchItem *Itm,CircleBuf &Out)
    case 6: wday = (char*)"Sat"; break;
    }
 
+   switch (timeinfo->tm_mon) {
+   case 0: mon = (char*)"Jan"; break;
+   case 1: mon = (char*)"Fab"; break;
+   case 2: mon = (char*)"Mar"; break;
+   case 3: mon = (char*)"Apr"; break;
+   case 4: mon = (char*)"May"; break;
+   case 5: mon = (char*)"Jun"; break;
+   case 6: mon = (char*)"Jul"; break;
+   case 7: mon = (char*)"Aug"; break;
+   case 8: mon = (char*)"Sep"; break;
+   case 9: mon = (char*)"Oct"; break;
+   case 10: mon = (char*)"Nov"; break;
+   case 11: mon = (char*)"Dec"; break;
+   }
+
    strcat(buffer, wday);
-   strftime(buffer+3, 80, ", %d %b %Y %T %z", timeinfo);
+   strftime(buffer+3, 77, ", %d ", timeinfo);
+   strcat(buffer+8, mon);
+   strftime(buffer+11, 69, " %Y %T %z", timeinfo);
    string dateString((const char*)buffer);
    Req += "Date: " + dateString + "\r\n";
 
